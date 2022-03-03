@@ -17,10 +17,20 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const CustomSlider(
-        assetImage: 'assets/slider_icon.png',
-        inActiveTrackColor: Colors.pink,
-        linearGradient: LinearGradient(colors: [Colors.pink, Colors.white]),
+      home: const Scaffold(
+        body: Padding(
+          padding: EdgeInsets.all(50.0),
+          child: CustomSlider(
+            assetImage: 'assets/slider_icon.png',
+            inActiveTrackColor: Colors.pink,
+            linearGradient: LinearGradient(colors: [Colors.pink, Colors.white]),
+            trackHeight: 20.0,
+            max: 100.0,
+            min: 0.0,
+            assetImageHeight: 40,
+            assetImageWidth: 60,
+          ),
+        ),
       ),
     );
   }

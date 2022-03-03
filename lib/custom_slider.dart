@@ -7,13 +7,25 @@ class CustomSlider extends StatefulWidget {
   final String assetImage;
   final LinearGradient linearGradient;
   final Color inActiveTrackColor;
+  final double trackHeight;
+  final double min;
+  final double max;
+  final int? assetImageHeight;
+  final int? assetImageWidth;
+  final int? divisions;
 
-  const CustomSlider(
-      {Key? key,
-      required this.assetImage,
-      required this.linearGradient,
-      required this.inActiveTrackColor})
-      : super(key: key);
+  const CustomSlider({
+    Key? key,
+    required this.assetImage,
+    required this.linearGradient,
+    required this.inActiveTrackColor,
+    required this.trackHeight,
+    required this.min,
+    required this.max,
+    this.divisions,
+    this.assetImageHeight = 50,
+    this.assetImageWidth = 60,
+  }) : super(key: key);
 
   @override
   State<CustomSlider> createState() => _CustomSliderState();
@@ -25,14 +37,16 @@ class _CustomSliderState extends State<CustomSlider> {
 
   Future<ui.Image> load(String asset) async {
     ByteData data = await rootBundle.load(asset);
-    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetHeight: widget.assetImageHeight,
+        targetWidth: widget.assetImageWidth);
     ui.FrameInfo frameInfo = await codec.getNextFrame();
     return frameInfo.image;
   }
 
   @override
   void initState() {
-    load('assets/slider_icon.png').then((image) {
+    load(widget.assetImage).then((image) {
       setState(() {
         customImage = image;
       });
@@ -42,29 +56,26 @@ class _CustomSliderState extends State<CustomSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SliderTheme(
-        data: SliderTheme.of(context).copyWith(
-            showValueIndicator: ShowValueIndicator.always,
-            inactiveTrackColor: widget.inActiveTrackColor,
-            trackShape:
-                GradientSliderTrackShape(linearGradient: widget.linearGradient),
-            trackHeight: 30.0,
-            overlayColor: Colors.purple.withAlpha(36),
-            thumbShape: customImage != null
-                ? SliderThumbImage(customImage!)
-                : const RoundSliderThumbShape()),
-        child: Slider(
-          min: 0,
-          max: 100,
-          divisions: 10,
-          onChanged: (double value) {
-            setState(() {
-              intValue = value;
-            });
-          },
-          value: intValue,
-        ),
+    return SliderTheme(
+      data: SliderTheme.of(context).copyWith(
+          inactiveTrackColor: widget.inActiveTrackColor,
+          trackShape:
+              GradientSliderTrackShape(linearGradient: widget.linearGradient),
+          trackHeight: widget.trackHeight,
+          overlayColor: Colors.purple.withAlpha(36),
+          thumbShape: customImage != null
+              ? SliderThumbImage(customImage!)
+              : const RoundSliderThumbShape()),
+      child: Slider(
+        min: widget.min,
+        max: widget.max,
+        divisions: widget.divisions,
+        onChanged: (double value) {
+          setState(() {
+            intValue = value;
+          });
+        },
+        value: intValue,
       ),
     );
   }
@@ -193,8 +204,8 @@ class SliderThumbImage extends SliderComponentShape {
     final picHeight = image.height;
 
     Offset picOffset = Offset(
-      center.dx - (picWidth / 2),
-      center.dy - (picHeight / 2),
+      (center.dx - (picWidth / 2)),
+      (center.dy - (picHeight / 2)),
     );
 
     Paint paint = Paint()..filterQuality = FilterQuality.high;
